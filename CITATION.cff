@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying article."
+title: "guesser: explainable, uncertainty-aware graph neural network for mutation ddG"
+version: 1.0.0
+license: MIT
+authors:
+  - family-names: Sjöberg
+    given-names: David
+# TODO: add co-authors, ORCID, the article reference and the Zenodo DOI on publication

@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+.DS_Store
+
+# data and run outputs (graphs, predictions, explanations live on Zenodo)
+/data/
+/runs/
+/outputs/
+*.h5
+*.tar
+*.tar.gz
+
+# checkpoints: only the released ensemble and the bundled examples are tracked
+*.pt
+!weights/guesser_S*.pt
+!examples/*.pt
+/results/

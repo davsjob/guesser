@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "guesser"
+version = "1.0.0"
+description = "Explainable, uncertainty-aware graph neural network for protein mutation ddG"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "David Sjöberg"}]
+dependencies = [
+    "torch>=2.4",
+    "torch-geometric>=2.6",
+    "numpy",
+    "pandas",
+    "scipy",
+    "biopython",
+    "h5py",
+    "openpyxl",
+    "tqdm",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+notebook = ["jupyter", "ipykernel"]
+analysis = ["seaborn", "scikit-learn"]
+test = ["pytest"]
+
+[project.scripts]
+guesser = "guesser.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["guesser*"]
+
+[tool.setuptools.package-data]
+guesser = ["data/*.csv"]

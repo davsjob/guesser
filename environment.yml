@@ -1,0 +1,24 @@
+# Versions used to train and evaluate the released model (Python 3.10, linux-aarch64, CUDA 12.6).
+# On other platforms install the matching torch build first (https://pytorch.org).
+name: guesser
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - torch==2.13.0
+      - torch-geometric==2.8.0.post1
+      - numpy==2.2.6
+      - pandas==2.3.3
+      - scipy==1.15.2
+      - scikit-learn==1.7.2
+      - biopython==1.88
+      - h5py==3.16.0
+      - openpyxl
+      - tqdm
+      - matplotlib
+      - seaborn
+      - jupyter
+      - pytest
+      - -e .

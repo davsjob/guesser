@@ -56,6 +56,5 @@ These scripts run with `results/figures/` as the working directory, which `run_a
 `build_uq_cache.py` first writes the per-variant ensemble tables in `data/`. The other scripts
 make one manuscript figure each; see the table in the top-level README.
 `fig_performance_calibration.py` draws Figs. 2 and 4 with the paper's plotting-notebook code,
-which is in `nature_figures.py`. The PyMOL renders (`fig1_render_structure.py`,
-`fig_positional_render.py`) need `pymol-open-source`. Without PyMOL, Fig. 1 uses the stored
-render in `assets/`.
+which is in `nature_figures.py`. The structure renders (`fig1_render_structure.py`, `fig_positional_render.py`) use
+`pymol-open-source`.

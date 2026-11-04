@@ -11,8 +11,6 @@ folding stability (ddG) caused by single and multiple point mutations.
   ensemble.
 * **Integrated-Gradients explanations.** Each prediction is attributed to features and
   residues, with exact completeness bookkeeping.
-* **Thermodynamic antisymmetry.** Training includes the reverse mutation and penalises
-  ddG(fwd) + ddG(rev).
 
 This repository has the code that trained the released model, the 8 checkpoints, a CLI, a
 quickstart notebook, and the analysis code behind every figure and number in the paper.
@@ -29,21 +27,13 @@ conda activate guesser
 To use an existing environment instead, run `pip install -e .` (torch ≥ 2.4 and torch-geometric ≥ 2.6).
 
 **MadraX** is needed only to build graphs from PDB files. It is not needed for prediction on
-prebuilt graphs, training, or explanations. Install it from its upstream repository. The
-paper used commit `bd247bd`:
-
-```bash
-pip install "git+https://bitbucket.org/grogdrinker/madrax.git@bd247bdabd26c68c578c6da18b5c939e6bf847bf"
-```
-
-MadraX is also developed at [github.com/grogdrinker/madrax](https://github.com/grogdrinker/madrax),
-where it ships compiled energy modules for specific platforms and Python versions. Python 3.10
-on x86-64 Linux is the safe choice.
+prebuilt graphs, training, or explanations. Install it from
+[github.com/grogdrinker/madrax](https://github.com/grogdrinker/madrax) (Python 3.10).
 
 ## Quickstart
 
 ```bash
-# Ensemble prediction on the 41 bundled example graphs (no MadraX needed)
+# Ensemble prediction on the bundled example graphs
 guesser predict --graphs examples/example_graphs.pt --out preds.csv
 
 # Your own structure and mutations (needs MadraX); A:L45F+A:G50A is one double mutant
@@ -51,8 +41,8 @@ guesser predict --pdb my_protein.pdb --mutations A:L45F A:G50A A:L45F+A:G50A --o
 ```
 
 [`notebooks/quickstart.ipynb`](notebooks/quickstart.ipynb) runs on a CPU in about a minute. It
-shows ensemble prediction, uncertainty, the antisymmetry check, and an Integrated-Gradients
-explanation of one double mutant.
+shows ensemble prediction, uncertainty, and an Integrated-Gradients explanation of one double
+mutant.
 
 From Python:
 
@@ -121,7 +111,7 @@ GUESSER_DATA=/path/to/data bash analysis/run_all.sh     # writes results/
 | Fig. 4 uncertainty calibration | `figure_2_uncertainty_calibration` | `analysis/figures/fig_performance_calibration.py` |
 | Fig. 5 selective prediction | `figS4_selective_prediction` | `analysis/audits/binned_selective_prediction.py`, `analysis/figures/figS4_selective_prediction.py` |
 | Fig. 6 protein flagging | `figS5_protein_flagging` | `analysis/attribution/deepdive_protein_flagging.py`, `analysis/figures/figS5_protein_flagging.py` |
-| Fig. 7 per-position uncertainty | `figure_per_position` | `analysis/figures/positional_csvs.py`, `positional_parts/`, `fig_positional_render.py` (PyMOL), `assemble_per_position.py` |
+| Fig. 7 per-position uncertainty | `figure_per_position` | `analysis/figures/positional_csvs.py`, `positional_parts/`, `fig_positional_render.py`, `assemble_per_position.py` |
 | Fig. 8 selection | `figure_selection` | `analysis/figures/fig_selection_data.py`, `fig_selection_bars.py` |
 | Fig. 9 attribution rules and trust | `fig4_rules_trust` | `analysis/figures/fig4_rules_trust.py` |
 | SI: selection curves, triage | `figure_selection_curves`, `figure_3_PPV_improvement` | `fig_selection.py`, `fig_triage.py` |
@@ -151,39 +141,6 @@ guesser merge-explanations --seed_files "out/s669_S*_raw_data.pt" --out_prefix o
 Read a released explanation file with `guesser.explain.h5.ExplanationFile`. That module needs
 only numpy and h5py, so it can also be copied on its own. `ef.readme` describes every field.
 
-### What has been checked against the original training code
-
-The released code is a cleaned-up copy of the research code, with prototype names replaced,
-dead options removed and no hard-coded paths. The checks in this table were run when it
-was extracted:
-
-| component | check | result |
-| --- | --- | --- |
-| model | same init for a given seed, same outputs, all 7 architecture variants | bit-identical |
-| checkpoints | all 8 load with `strict=True` into the new class | OK |
-| training loop | 4 epochs on the same graphs and seed, single-threaded CPU | weights and epoch logs bit-identical |
-| inference + ensemble | the paper's graphs (rebuilt from the explanation files) vs the saved per-seed CSVs for Ssym, Ssym-rev, S669, PTmul, FireProt-HF and Megascale-test | max abs. difference 2e-5 (float32, GPU vs CPU) |
-| IG explainer | all 17 attribution arrays vs the released HDF5 (Ssym, seed 42) | bit-identical |
-| paper analysis | `analysis/run_all.sh` on the exported data vs the outputs of the paper's final runs: 176 tables and key-number files | 165 identical; 11 differ, none of them caption numbers: 8 by ≤ 0.02 or float noise, plus one attribution-check AUC (≤ 0.024) and one near-zero partial-correlation column |
-| manuscript figures | regenerated vs the submitted PNGs | 7 of 10 pixel-identical; Fig. 1, Fig. 5 and the SI selection curves differ by a few pixels (Fig. 1's schematic glyph now uses the released explanations); Fig. 7b needs PyMOL |
-
-`pytest tests/` re-runs a small version of these checks against reference values from the
-released runs.
-
-Notes on exact reproduction:
-
-* **Multithreading.** On CPU and GPU, PyG scatter operations use atomics, so repeated
-  training runs differ in the last bits unless run single-threaded or deterministically.
-  The released weights come from GH200 GPUs.
-* **Graph order.** The training data order affects shuffling. `build-graphs` processes
-  structures sorted by PDB name and keeps table order within a structure.
-  `scripts/merge_shards.py` restores that order after a sharded build. Bit-exact retraining
-  needs the graph caches deposited on Zenodo.
-* **MadraX numerics.** MadraX energies can differ slightly between devices.
-* **Coordinate noise.** `coord_noise_sigma = 0.2` is configured as in the original runs.
-  The local graphs carry no CA coordinates, so this augmentation had no effect on the
-  released model. It is kept so that random number use matches.
-
 ## Repository layout
 
 ```
@@ -204,18 +161,6 @@ notebooks/        quickstart.ipynb
 scripts/          export_release_data.py (builds the data folder), merge_shards.py, SLURM examples
 tests/            pytest suite
 ```
-
-Names in the research code, for readers of the paper's supplementary material:
-
-| here | research code |
-| --- | --- |
-| `GUESSER` | `SiameseEvidentialResGAT_Ultimate` (`models_30_07.py`) |
-| `DampedResidualGATBlock`, `RBFExpansion`, `EpistasisPooling` | `ResRBFGATBlock_Damped`, `RBFLayer`, `SetTransformerEpistasis` |
-| `guesser.training.train` | `training_29_07.train_model` (evidential path) via `main_30_07.py` |
-| `guesser.graphs.build_graphs` | `mutations_multiradius.process_mutations_multiradius(madrax_mode="isolated")` |
-| `guesser.inference` | `benchmark_mega_predictions_edl_30_07.py` + ensemble aggregation |
-| `guesser.explain.*` | `explain_s_std_a.py`, `explain_s_std_a_core.py`, `merge_explain_seeds.py`, `s_std_a_explain_h5.py` |
-| released GUESSER ensemble | run `clean_hero` ("hero"), seeds S42–S49; internal model name S_Std_A |
 
 ## Citation
 

@@ -44,7 +44,7 @@ def require_madrax():
     if not MADRAX_AVAILABLE:
         raise ImportError(
             "MadraX is required to build graphs from structures. Install it from "
-            "https://bitbucket.org/grogdrinker/madrax (see README, tested commit bd247bd).")
+            "https://github.com/grogdrinker/madrax.")
 
 
 def run_madrax(coords, atnames, mutation_batch_list, device='cuda'):

@@ -50,7 +50,7 @@ class TrainConfig:
     edl_warmup_epochs: int = 30
     lambda_antisym: float = 1.0
     reverse_augmentation: bool = True
-    coord_noise_sigma: float = 0.2      # no effect on graphs without .ca_coords (see README)
+    coord_noise_sigma: float = 0.2      # Gaussian CA-coordinate noise (A), applied to graphs that carry .ca_coords
     double_weight: float = 1.0          # loss weight for multi-mutants; 1.0 = unweighted (released model)
     mutation_type: str = "all"          # all | single | double
     feature_set: str = "all"            # all | madrax_only | no_madrax

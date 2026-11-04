@@ -47,8 +47,14 @@ conda activate guesser
 ```
 
 Or `pip install -e .` in an existing environment (torch ≥ 2.4, torch-geometric ≥ 2.6).
-[MadraX](https://github.com/grogdrinker/madrax) is needed to build graphs from PDB files
-(Python 3.10).
+
+Building graphs from PDB files needs [MadraX](https://github.com/grogdrinker/madrax). We
+recommend our fork, which adds faster pair search and fixes batch-dependent energies
+(Linux x86-64, Python 3.7–3.12):
+
+```bash
+pip install -e ".[structures]"     # or: pip install "git+https://github.com/davsjob/madrax.git"
+```
 
 ## Quickstart
 
@@ -183,7 +189,7 @@ See `CITATION.cff`.
 
 ## License and third-party data
 
-The code is under the MIT license (`LICENSE`). MadraX is a separate dependency under its own
-license. The training and benchmark data (MegaScale, FireProt-HF, SSYM, S669, PTMUL-D and the
+The code is under the MIT license (`LICENSE`). MadraX is a separate dependency under the
+Apache 2.0 license. The training and benchmark data (MegaScale, FireProt-HF, SSYM, S669, PTMUL-D and the
 ProteinGym deep mutational scans) belong to their original authors; please cite them when
 you use the deposited data.

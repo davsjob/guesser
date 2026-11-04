@@ -22,3 +22,4 @@ dependencies:
       - jupyter
       - pytest
       - -e .
+      # to build graphs from PDB files (Linux x86-64): - madrax @ git+https://github.com/davsjob/madrax.git

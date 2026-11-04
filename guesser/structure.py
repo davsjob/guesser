@@ -43,8 +43,8 @@ VALID_AAS = {
 def require_madrax():
     if not MADRAX_AVAILABLE:
         raise ImportError(
-            "MadraX is required to build graphs from structures. Install it from "
-            "https://github.com/grogdrinker/madrax.")
+            "MadraX is required to build graphs from structures: "
+            "pip install 'git+https://github.com/davsjob/madrax.git' (Linux x86-64, Python 3.7-3.12).")
 
 
 def run_madrax(coords, atnames, mutation_batch_list, device='cuda'):

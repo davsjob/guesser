@@ -26,6 +26,7 @@ dependencies = [
 [project.optional-dependencies]
 notebook = ["jupyter", "ipykernel"]
 analysis = ["seaborn", "scikit-learn"]
+structures = ["madrax @ git+https://github.com/davsjob/madrax.git"]
 test = ["pytest"]
 
 [project.scripts]

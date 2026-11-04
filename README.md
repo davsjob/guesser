@@ -164,7 +164,7 @@ was extracted:
 | training loop | 4 epochs on the same graphs and seed, single-threaded CPU | weights and epoch logs bit-identical |
 | inference + ensemble | the paper's graphs (rebuilt from the explanation files) vs the saved per-seed CSVs for Ssym, Ssym-rev, S669, PTmul, FireProt-HF and Megascale-test | max abs. difference 2e-5 (float32, GPU vs CPU) |
 | IG explainer | all 17 attribution arrays vs the released HDF5 (Ssym, seed 42) | bit-identical |
-| paper analysis | `analysis/run_all.sh` on the exported data vs the outputs of the paper's final runs: 176 tables and key-number files | 169 identical; 7 differ in the 3rd decimal or less (grouped-CV AUCs, two bootstrap CIs, two AUROCs) |
+| paper analysis | `analysis/run_all.sh` on the exported data vs the outputs of the paper's final runs: 176 tables and key-number files | 165 identical; 11 differ, none of them caption numbers: 8 by ≤ 0.02 or float noise, plus one attribution-check AUC (≤ 0.024) and one near-zero partial-correlation column |
 | manuscript figures | regenerated vs the submitted PNGs | 7 of 10 pixel-identical; Fig. 1, Fig. 5 and the SI selection curves differ by a few pixels (Fig. 1's schematic glyph now uses the released explanations); Fig. 7b needs PyMOL |
 
 `pytest tests/` re-runs a small version of these checks against reference values from the

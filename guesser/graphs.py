@@ -253,6 +253,29 @@ def mutation_table(pdb, mutations, default_chain="A"):
     return pd.DataFrame(rows)
 
 
+def read_mutation_csv(path, default_chain="A"):
+    """
+    Mutation list for build_graphs from a CSV with one row per variant:
+
+        pdb        structure file name in the PDB folder (".pdb" added if missing)
+        mutation   e.g. A:L45F, L45F (chain from a `chain` column or default_chain) or A:L45F+A:G50A
+        ddg        optional measured ddG (kcal/mol), used to report accuracy
+    """
+    t = pd.read_csv(path)
+    missing = {"pdb", "mutation"} - set(t.columns)
+    if missing:
+        raise ValueError(f"{path}: missing column(s) {sorted(missing)}; expected pdb, mutation[, chain, ddg]")
+    rows = []
+    for _, r in t.iterrows():
+        pdb = str(r["pdb"]).strip()
+        chain = str(r["chain"]).strip() if "chain" in t.columns and pd.notna(r["chain"]) else default_chain
+        rows.append({"pdb": pdb if pdb.endswith(".pdb") else pdb + ".pdb",
+                     "mut_list": parse_mutation(str(r["mutation"]), chain),
+                     "ddg": float(r["ddg"]) if "ddg" in t.columns and pd.notna(r["ddg"]) else float("nan"),
+                     "input": str(r["mutation"])})
+    return pd.DataFrame(rows)
+
+
 def load_table(paths):
     """Concatenate CSV/XLSX tables in the order given (training used S then D for Megascale)."""
     if isinstance(paths, str):

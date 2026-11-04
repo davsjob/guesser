@@ -64,6 +64,10 @@ guesser predict --graphs examples/example_graphs.pt --out preds.csv
 
 # Your own structure and mutations; A:L45F+A:G50A is one double mutant
 guesser predict --pdb my_protein.pdb --mutations A:L45F A:G50A A:L45F+A:G50A --out preds.csv
+
+# A mutation list over several structures (columns pdb, mutation, optional chain and ddg;
+# see examples/mutations.csv); with measured ddg it also reports r, ρ and RMSE
+guesser predict --csv mutations.csv --pdb-dir structures/ --out preds.csv
 ```
 
 [`notebooks/quickstart.ipynb`](notebooks/quickstart.ipynb) shows ensemble prediction,

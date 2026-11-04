@@ -2,6 +2,7 @@
 Command line interface.
 
     guesser predict --pdb 1abc.pdb --mutations A:L45F A:G50A+A:L45F --out preds.csv
+    guesser predict --csv mutations.csv --pdb-dir structures/ --out preds.csv
     guesser predict --graphs graphs.pt --out preds.csv
     guesser build-graphs --table Megascale-S-train.xlsx Megascale-D-train.xlsx --pdb-dir pdbs/ --out train.pt
     guesser train --train train.pt --val val.pt --seed 42 --out-dir runs/ --name guesser_S42
@@ -59,21 +60,29 @@ def cmd_train(args):
 def cmd_predict(args):
     from .inference import released_weights, metrics, predict
 
+    df = None
     if args.graphs:
         graphs = _load_graphs(args.graphs)
     else:
-        if not (args.pdb and args.mutations):
-            sys.exit("give --graphs, or --pdb with --mutations")
-        from .graphs import build_graphs, check_graphs, mutation_table
-        pdb_dir, pdb_file = os.path.split(os.path.abspath(args.pdb))
-        df = mutation_table(pdb_file, args.mutations, default_chain=args.chain)
+        from .graphs import build_graphs, check_graphs, mutation_table, read_mutation_csv
+        if args.csv:
+            df = read_mutation_csv(args.csv, default_chain=args.chain)
+            pdb_dir = args.pdb_dir or os.path.dirname(os.path.abspath(args.csv))
+        elif args.pdb and args.mutations:
+            pdb_dir, pdb_file = os.path.split(os.path.abspath(args.pdb))
+            df = mutation_table(pdb_file, args.mutations, default_chain=args.chain)
+        else:
+            sys.exit("give --csv (with --pdb-dir), --pdb with --mutations, or --graphs")
         graphs = build_graphs(df, pdb_dir, radii=[9.0], edge_cutoff=9.0, device=args.device)[9.0]
         check_graphs(graphs)
-        if len(graphs) < len(df):
-            print(f"WARNING: {len(df) - len(graphs)} mutation(s) could not be built (check chain/position)")
+        built = {it["row"] for it in graphs}
+        for row in df.index.difference(sorted(built)):
+            print(f"WARNING: could not build {df.loc[row, 'pdb']} {df.loc[row, 'input']} (check file, chain and position)")
 
     weights = args.weights or released_weights()
     ens, members = predict(graphs, weights, device=args.device, batch_size=args.batch_size, return_members=True)
+    if df is not None:   # keep the user's own mutation strings next to the parsed ones
+        ens.insert(2, "input", [df.loc[it["row"], "input"] for it in graphs])
     if args.out:
         os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
         ens.to_csv(args.out, index=False)
@@ -82,10 +91,10 @@ def cmd_predict(args):
         os.makedirs(args.member_dir, exist_ok=True)
         for w, m in zip(weights, members):
             m.to_csv(os.path.join(args.member_dir, os.path.basename(w).replace('.pt', '_predictions.csv')), index=False)
-    show = ens[['pdb', 'mutation', 'pred_ddg', 'intra_epistemic_std', 'calibrated_std', 'aleatoric_std']]
+    show = ens[['pdb', 'input' if 'input' in ens else 'mutation', 'pred_ddg', 'intra_epistemic_std', 'calibrated_std']]
     print(show.head(args.show).to_string(index=False))
-    if ens['true_ddg'].abs().sum() > 0:
-        print(metrics(ens, sigma='intra_epistemic_std'))
+    if ens['true_ddg'].notna().sum() >= 3 and ens['true_ddg'].abs().sum() > 0:   # measured ddG given
+        print(metrics(ens.dropna(subset=['true_ddg']), sigma='intra_epistemic_std'))
 
 
 def main(argv=None):
@@ -117,6 +126,8 @@ def main(argv=None):
 
     pr = sub.add_parser("predict", help="ensemble ddG + uncertainty")
     pr.add_argument("--graphs", help="graph pairs (.pt) from build-graphs")
+    pr.add_argument("--csv", help="mutation list with columns pdb, mutation[, chain, ddg] (needs MadraX)")
+    pr.add_argument("--pdb-dir", help="folder with the structures named in --csv (default: the CSV's folder)")
     pr.add_argument("--pdb", help="a PDB file (needs MadraX to build graphs)")
     pr.add_argument("--mutations", nargs="+", help="e.g. A:L45F  L45F  A:L45F+A:G50A")
     pr.add_argument("--chain", default="A", help="chain for mutations given without one")

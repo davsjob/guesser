@@ -1,0 +1,5 @@
+pdb,mutation,ddg
+my_protein,A:L45F,
+my_protein,A:G50A,
+my_protein,A:L45F+A:G50A,
+other_protein,B:K12E,0.8

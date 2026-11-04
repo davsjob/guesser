@@ -1,5 +1,5 @@
 """Rebuild data/positional_intra_megascale_v2.csv and data/positional_2k5h_intra.csv (inputs of positional_parts/)
-from data/mega_test_uq.csv (sigma_intra = sigma_e). Run from manuscript_figures_v2/. Arg: output suffix ('' to overwrite)."""
+from data/mega_test_uq.csv (sigma_intra = sigma_e). Run from results/figures/. Arg: output suffix ('' to overwrite)."""
 import ast, sys, numpy as np, pandas as pd
 from scipy.stats import pearsonr, spearmanr, rankdata
 suf = sys.argv[1] if len(sys.argv) > 1 else ""

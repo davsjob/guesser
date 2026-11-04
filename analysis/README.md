@@ -44,7 +44,7 @@ The definitions used in these scripts:
 
 | script | role |
 | --- | --- |
-| `verify_attribution_section/part_*.py` | independent recomputation of every number in the attribution section (see `VERIFICATION.md`) |
+| `verify_attribution_section/part_*.py` | independent recomputation of every number in the attribution section |
 | `binned_selective_prediction.py` | selective prediction globally and within predicted-ddG bins (Fig. 5) |
 | `normalized_selective_prediction.py` | the same with bin-normalised uncertainty |
 | `uq_measures_benchmarks.py` | AUCO and rank correlations of each uncertainty measure on every benchmark |

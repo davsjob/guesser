@@ -1,6 +1,6 @@
 """Numbers for figure_selection: per-rule values with 95% protein-bootstrap CIs (B = 1000).
 Same definitions as calls_threeclass.py (Addendum 5, neutral class) and stab_twostage.py (Addendum 8, per protein).
-Hero model, forward singles, sigma_e = sigma_intra, s* = 1.708. Usage: python fig_selection_data.py [<pred_dir> <outdir>] (defaults: GUESSER_DATA/predictions, results/figures/data)"""
+Released ensemble, forward singles, sigma_e = sigma_intra, s* = 1.708. Usage: python fig_selection_data.py [<pred_dir> <outdir>] (defaults: GUESSER_DATA/predictions, results/figures/data)"""
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), ".."))
 from paths import FIGURES_OUT, PRED_DIR

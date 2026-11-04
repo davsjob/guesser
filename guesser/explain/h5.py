@@ -8,7 +8,7 @@ Reader: this file has no package dependencies, so it can be copied next to a dow
 .h5 on its own; needs numpy + h5py (pandas only for summary()).
 
     from guesser.explain.h5 import ExplanationFile
-    ef = ExplanationFile("s_std_a_s669_raw_data.h5")
+    ef = ExplanationFile("s669_explanations.h5")
     print(ef.readme)                 # full description of every dataset
     df = ef.summary()                # the per-mutation summary table (pandas)
     m = ef.mutation(0)               # everything for mutation 0 as a dict

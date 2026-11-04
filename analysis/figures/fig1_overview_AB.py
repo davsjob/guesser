@@ -1,4 +1,4 @@
-"""Fig. 1 (A/B only, per Hugo; C-F removed) - overview (simplified): model schematic (A), how single and double mutants become graphs (B),
+"""Fig. 1 (panels A/B; C-F were removed from the final figure) - overview (simplified): model schematic (A), how single and double mutants become graphs (B),
 MegaScale-S / -D test performance (C, D), prediction and uncertainty on 2K5H (E), explanation of one prediction (F).
 
 Inputs

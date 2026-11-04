@@ -67,5 +67,5 @@ $PY "$F/fig_selection.py" data/figure_selection_numbers.csv .        # SI: curve
 for e in png pdf; do mv figure_selection.$e figure_selection_curves.$e; done
 $PY "$F/fig_selection_bars.py" data/figure_selection_numbers.csv .   # Fig. 8: bar version
 $PY "$F/fig4_rules_trust.py"                   # Fig. 9  figure_rules_trust
-$PY "$F/triage_hero.py"                        # SI: figure_3_PPV_improvement
+$PY "$F/fig_triage.py"                        # SI: figure_3_PPV_improvement
 echo; echo "done: results in $RES"

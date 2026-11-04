@@ -124,7 +124,7 @@ GUESSER_DATA=/path/to/data bash analysis/run_all.sh     # writes results/
 | Fig. 7 per-position uncertainty | `figure_per_position` | `analysis/figures/positional_csvs.py`, `positional_parts/`, `fig_positional_render.py` (PyMOL), `assemble_per_position.py` |
 | Fig. 8 selection | `figure_selection` | `analysis/figures/fig_selection_data.py`, `fig_selection_bars.py` |
 | Fig. 9 attribution rules and trust | `fig4_rules_trust` | `analysis/figures/fig4_rules_trust.py` |
-| SI: selection curves, triage | `figure_selection_curves`, `figure_3_PPV_improvement` | `fig_selection.py`, `triage_hero.py` |
+| SI: selection curves, triage | `figure_selection_curves`, `figure_3_PPV_improvement` | `fig_selection.py`, `fig_triage.py` |
 
 Numbers quoted in the text come from the key-number JSONs and tables in `results/attribution/`
 (attribution analyses and deep dives) and `results/audits/` (attribution-section checks,

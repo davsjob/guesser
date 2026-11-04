@@ -119,4 +119,4 @@ out_pdf = 'figure_3_PPV_improvement.pdf'
 fig.savefig(out_png)
 fig.savefig(out_pdf)
 plt.close(fig)
-print('✓ Successfully generated clean Figure 7!')
+print('wrote figure_3_PPV_improvement.png and .pdf')

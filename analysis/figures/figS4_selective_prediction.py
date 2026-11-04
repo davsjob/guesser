@@ -1,5 +1,5 @@
 """Fig. S4 - selective prediction within bins of predicted ddG. Style matches figure_2_uncertainty_calibration
-(generate_nature_figures_modular.ipynb). Inputs: main_paper/audits/binned_selective_prediction/ (no new analysis)."""
+(generate_nature_figures_modular.ipynb). Inputs: results/audits/binned_selective_prediction/ (no new analysis)."""
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), ".."))
 from paths import AUDITS_OUT

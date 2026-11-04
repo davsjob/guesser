@@ -1,4 +1,4 @@
-"""Is the doubles error distance-dependent (large error for close core pairs)? MegaScale doubles, S_Std_A ensemble.
+"""Is the doubles error distance-dependent (large error for close core pairs)? MegaScale doubles, GUESSER ensemble.
 Site-pair bootstrap CIs; controls for experimental ddG (saturation-driven under-prediction) and burial."""
 import json, numpy as np, pandas as pd
 from pathlib import Path

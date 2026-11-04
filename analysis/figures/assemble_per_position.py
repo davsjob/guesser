@@ -1,5 +1,5 @@
 """Assemble figure_per_position.png from positional_parts/ (a, c) and the PyMOL renders (b), in the manuscript's layout
-(previously assembled in PowerPoint). Run from manuscript_figures_v2/."""
+(previously assembled in PowerPoint). Run from results/figures/."""
 import numpy as np, matplotlib.pyplot as plt, matplotlib.image as mpimg
 plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"]})
 def crop(im):

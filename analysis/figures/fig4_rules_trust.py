@@ -1,5 +1,5 @@
 """Fig. 4 - what the model learned (mu) and where it trusts it (sigma). Singles, mutation IG, ensemble means.
-Inputs: attribution_v3 deepdive tables (no new analysis)."""
+Inputs: results/attribution deep-dive tables (no new analysis)."""
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), ".."))
 from paths import ATTRIBUTION_OUT, AUDITS_OUT

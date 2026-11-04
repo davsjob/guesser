@@ -16,7 +16,7 @@ Only forward mutations are used unless a script says otherwise.
 ## attribution/
 
 This is the analysis of the Integrated-Gradients explanations. It produces the attribution
-section of the paper, Fig. 3 and the inputs of Figs. 6 and 9.
+section of the paper, Fig. 3, Table S4 and the inputs of Figs. 7 and 9.
 
 | script | role |
 | --- | --- |
@@ -45,10 +45,19 @@ The definitions used in these scripts:
 | script | role |
 | --- | --- |
 | `verify_attribution_section/part_*.py` | independent recomputation of every number in the attribution section |
-| `binned_selective_prediction.py` | selective prediction globally and within predicted-ddG bins (Fig. 5) |
-| `normalized_selective_prediction.py` | the same with bin-normalised uncertainty |
-| `uq_measures_benchmarks.py` | AUCO and rank correlations of each uncertainty measure on every benchmark |
-| `triage_intra.py`, `underprediction_check.py` | numbers for the triage and underprediction statements |
+| `binned_selective_prediction.py` | error rejection globally and within bins of predicted ΔΔG (Fig. 5) |
+| `normalized_selective_prediction.py` | the same with σ_e normalised by its typical value at the same predicted ΔΔG (bin-edge check, Section 1.6) |
+| `uq_measures_benchmarks.py` | AUCO and ρ with the absolute error for σ_a, σ_e and 1/Φ on every benchmark (Table 2) |
+
+## tables/
+
+| script | role |
+| --- | --- |
+| `table1_benchmarks.py` | GUESSER columns of Table 1 (n, r, ρ, RMSE per benchmark) and Table S3 (ρ per DMS assay) |
+
+Table 2 comes from `audits/uq_measures_benchmarks.py` and Table S4 from
+`attribution/protein_flagging_intra_thresholds.py`. `run_all.sh` copies all of them, with the
+figures, to `results/paper/` under the manuscript's numbering.
 
 ## figures/
 

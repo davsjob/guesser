@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "guesser"
 version = "1.0.0"
-description = "Explainable, uncertainty-aware graph neural network for protein mutation ddG"
+description = "GUESSER: Graph network for Uncertainty-aware, Explainable Stability Shifts from Evidential Regression"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
-authors = [{name = "David Sjöberg"}]
+authors = [{name = "David Sjöberg"}, {name = "Lucien Koenekoop"}, {name = "Johan Åqvist"}, {name = "Hugo Gutiérrez-de-Terán"}]
 dependencies = [
     "torch>=2.4",
     "torch-geometric>=2.6",

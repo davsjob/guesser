@@ -2,11 +2,14 @@
 Inference with one checkpoint or the 8-member ensemble.
 
 Per member, every mutation is evaluated forward (WT -> MT) and reverse (MT -> WT), as in
-the paper's benchmark files. Ensemble uncertainty (Forward rows) follows the manuscript:
+the paper's benchmark files. Ensemble quantities (Forward rows), as in the manuscript (Eqs. 1-2):
 
-    aleatoric_std        sqrt(mean_m beta/(alpha-1))
-    intra_epistemic_std  sqrt(mean_m beta/(v(alpha-1)))     (sigma_e in the paper)
-    inter_epistemic_std  std_m(mu), ddof=1                    (spread between members)
+    pred_ddg             mu = mean_m gamma_m
+    intra_epistemic_std  sigma_e = sqrt(mean_m beta/(v(alpha-1)))   (epistemic uncertainty)
+    calibrated_std       s* sigma_e, with s* = 1.71 fitted on the MegaScale validation set
+    aleatoric_std        sigma_a = sqrt(mean_m beta/(alpha-1))
+    inv_phi              1/Phi = mean_m 1/(2v + alpha)               (inverse total evidence; ranking only)
+    inter_epistemic_std  std_m(mu), ddof=1                           (spread between members)
     epistemic_std        sqrt(intra^2 + inter^2)
     total_std            sqrt(aleatoric^2 + epistemic^2)
 """
@@ -22,6 +25,9 @@ from torch_geometric.nn import global_add_pool
 from .datasets import CoordinateNoiseDataset, GraphPairDataset, ReverseAugmentedDataset, collate_pairs
 from .features import apply_feature_set
 from .model import load_model
+
+# Validation scale factor for sigma_e (manuscript Eq. 2)
+S_STAR = 1.708
 
 DEFAULT_WEIGHTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "weights")
 
@@ -93,8 +99,10 @@ def ensemble(member_dfs, direction="Forward"):
     out['pred_ddg'] = mu.mean(0)
     for name in ('pred_phys', 'pred_base', 'pred_epi'):
         out[name] = np.stack([d[name].values for d in dfs]).mean(0)
-    out['aleatoric_std'] = np.sqrt(ale_var)
     out['intra_epistemic_std'] = np.sqrt(intra_var)
+    out['calibrated_std'] = S_STAR * np.sqrt(intra_var)
+    out['aleatoric_std'] = np.sqrt(ale_var)
+    out['inv_phi'] = (1.0 / (2.0 * v + am1 + 1.0)).mean(0)
     out['inter_epistemic_std'] = np.sqrt(inter_var)
     out['epistemic_std'] = np.sqrt(inter_var + intra_var)
     out['total_std'] = np.sqrt(ale_var + inter_var + intra_var)

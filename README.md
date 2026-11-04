@@ -1,34 +1,54 @@
 # GUESSER
 
-GUESSER is an explainable, uncertainty-aware graph neural network for the change in protein
-folding stability (ddG) caused by single and multiple point mutations.
+**G**raph network for **U**ncertainty-aware, **E**xplainable **S**tability **S**hifts from
+**E**vidential **R**egression.
 
-* **Siamese graph model.** It compares the wild-type and mutant residue neighbourhoods. The
-  prediction is split into three additive parts: a linear physics prior on MadraX energy
-  differences, a structural GNN head, and an epistasis head for multi-mutants.
-* **Evidential uncertainty.** A Normal-Inverse-Gamma head gives aleatoric and epistemic
-  uncertainty from one forward pass. Eight independently seeded members form the released
-  ensemble.
-* **Integrated-Gradients explanations.** Each prediction is attributed to features and
-  residues, with exact completeness bookkeeping.
+GUESSER predicts the change in protein stability (ΔΔG) caused by single and double mutations,
+together with an uncertainty for each prediction, from interpretable physicochemical and
+energetic descriptors of the local protein structure. The uncertainty and the prediction are
+both explained with integrated gradients and can be mapped back onto the structure.
 
-This repository has the code that trained the released model, the 8 checkpoints, a CLI, a
-quickstart notebook, and the analysis code behind every figure and number in the paper.
+This repository has the code, the eight trained ensemble members, a CLI, a quickstart
+notebook, and the analysis code behind the figures and tables of the paper:
 
-> Sign convention: ddG > 0 means the mutation is destabilising (kcal/mol).
+> D. Sjöberg, L. Koenekoop, J. Åqvist, H. Gutiérrez-de-Terán. *Evidential Graph Neural
+> Networks for Explainable and Uncertainty-Aware Thermostability Prediction in Protein
+> Engineering.*
+
+Sign convention: ΔΔG > 0 is destabilizing (kcal mol⁻¹).
+
+## How it works
+
+* **Local graphs.** Residues with atoms within 9 Å of the Cα of a mutated residue form the
+  graph; residues whose Cα atoms are within 9 Å are connected by edges carrying distance and
+  side-chain orientation. Each node has 23 features: 11 amino-acid descriptors, SASA and 11
+  MadraX energy terms (Table S2). Wild-type and mutant graphs share the topology and differ
+  only in node features. Double mutants with overlapping neighbourhoods form one graph;
+  distant ones form two disconnected components.
+* **Siamese GNN.** Both graphs are encoded by shared graph attention (GAT) layers. Their
+  difference feeds a global head and a multi-mutation (epistasis) head, active only for two or
+  more mutations, and the summed MadraX energy differences feed a linear physics prior:
+  μ = γ_base + γ_epi + γ_phys.
+* **Evidential regression.** The evidential head predicts the Normal-Inverse-Gamma parameters
+  (γ, ν, α, β). Over the eight ensemble members, the prediction is μ = mean(γ), the epistemic
+  uncertainty is σ_e = √(mean β/(ν(α−1))), the aleatoric uncertainty is
+  σ_a = √(mean β/(α−1)), and 1/Φ = mean 1/(2ν+α) is the inverse total evidence. σ_e is
+  calibrated with one scale factor fitted on the MegaScale validation set, s* = 1.71.
+* **Integrated gradients.** The *mutation attribution* integrates the mutation-induced
+  feature changes from a null mutation, with the wild-type environment fixed; the
+  *environment attribution* integrates the wild-type features from the graph mean. Both are
+  computed for μ and log σ_e, per residue and per feature, and averaged over the ensemble.
 
 ## Install
 
 ```bash
-conda env create -f environment.yml   # Python 3.10 + the versions used for the paper
+conda env create -f environment.yml   # Python 3.10 and the versions used for the paper
 conda activate guesser
 ```
 
-To use an existing environment instead, run `pip install -e .` (torch ≥ 2.4 and torch-geometric ≥ 2.6).
-
-**MadraX** is needed only to build graphs from PDB files. It is not needed for prediction on
-prebuilt graphs, training, or explanations. Install it from
-[github.com/grogdrinker/madrax](https://github.com/grogdrinker/madrax) (Python 3.10).
+Or `pip install -e .` in an existing environment (torch ≥ 2.4, torch-geometric ≥ 2.6).
+[MadraX](https://github.com/grogdrinker/madrax) is needed to build graphs from PDB files
+(Python 3.10).
 
 ## Quickstart
 
@@ -36,139 +56,134 @@ prebuilt graphs, training, or explanations. Install it from
 # Ensemble prediction on the bundled example graphs
 guesser predict --graphs examples/example_graphs.pt --out preds.csv
 
-# Your own structure and mutations (needs MadraX); A:L45F+A:G50A is one double mutant
+# Your own structure and mutations; A:L45F+A:G50A is one double mutant
 guesser predict --pdb my_protein.pdb --mutations A:L45F A:G50A A:L45F+A:G50A --out preds.csv
 ```
 
-[`notebooks/quickstart.ipynb`](notebooks/quickstart.ipynb) runs on a CPU in about a minute. It
-shows ensemble prediction, uncertainty, and an Integrated-Gradients explanation of one double
-mutant.
-
-From Python:
+[`notebooks/quickstart.ipynb`](notebooks/quickstart.ipynb) shows ensemble prediction,
+uncertainty and an integrated-gradients explanation of a double mutant, and runs on a CPU in
+about a minute. From Python:
 
 ```python
 import torch
 from guesser.inference import predict
 graphs = torch.load("examples/example_graphs.pt", weights_only=False)
-ens = predict(graphs)            # the 8 released members in weights/
+ens = predict(graphs)            # the eight members in weights/
 ```
 
-### Output columns (ensemble CSV)
+### Output columns
 
 | column | meaning |
 | --- | --- |
-| `pred_ddg` | ensemble mean of mu = `pred_phys` + `pred_base` + `pred_epi` |
-| `pred_phys`, `pred_base`, `pred_epi` | physics prior, structural head, epistasis head (exactly 0 for single mutants) |
-| `intra_epistemic_std` | sqrt(mean over members of beta / (v (alpha - 1))); this is sigma_e in the paper |
-| `inter_epistemic_std` | standard deviation of mu across members (ddof = 1) |
-| `epistemic_std` | sqrt(intra² + inter²) |
-| `aleatoric_std` | sqrt(mean over members of beta / (alpha - 1)) |
-| `total_std` | sqrt(aleatoric² + epistemic²) |
+| `pred_ddg` | μ, the ensemble mean prediction (kcal mol⁻¹) |
+| `pred_phys`, `pred_base`, `pred_epi` | γ_phys, γ_base, γ_epi (γ_epi is exactly 0 for single mutants) |
+| `intra_epistemic_std` | σ_e, the epistemic uncertainty |
+| `calibrated_std` | s*·σ_e with s* = 1.71; the predictive distribution is N(μ, (s*σ_e)²) |
+| `aleatoric_std` | σ_a, the aleatoric uncertainty |
+| `inv_phi` | 1/Φ, the inverse total evidence (unitless; for ranking only) |
+| `inter_epistemic_std`, `epistemic_std`, `total_std` | spread of μ between members, and its combinations with σ_e and σ_a |
 
-`--member-dir` also writes one CSV per member with forward and reverse rows and the raw NIG
-parameters (`v`, `alpha`, `beta`). These files have the same format as the paper's
-benchmark files.
+`--member-dir` also writes one file per ensemble member with the forward and reverse
+predictions and the raw (ν, α, β).
 
-## Model
+## Training
 
-`guesser.model.GUESSER` (hidden 256, 4 layers, about 2.16 M parameters):
-
-* **Graphs.** Nodes are the residues with any atom within 9 Å of a mutated residue's CA.
-  Edges connect pairs with CA–CA ≤ 9 Å, with features [cos(CA→CB_i, CA→CB_j), distance]. Each
-  node has 23 features: 11 amino-acid properties, SASA, and 11 MadraX per-residue energy
-  terms. The WT and MT graphs share topology and differ only in node features. MadraX runs in
-  "isolated" mode: one wild-type call per structure and one call per mutant, so features
-  don't depend on batching.
-* **Backbone.** Four damped, pre-norm residual blocks of GATv2 plus an RBF distance-message
-  branch, applied to [x_wt, x_mt − x_wt].
-* **Heads.** gamma_phys is linear in the summed MadraX differences. gamma_base comes from the
-  mean pool plus the mutated-site pool. gamma_epi comes from attentional pooling over
-  mutated nodes, hard-gated to 0 for single mutants. The evidential head (v, alpha, beta)
-  sees the normalised structural, epistatic and physics latents.
-* **Training.** Megascale (Tsuboyama et al. 2023) S + D splits as in ThermoMPNN, with reverse
-  augmentation. The loss is NIG NLL plus 0.05·|y − mu|·(2v + alpha), with the regulariser
-  ramped in over 30 epochs, plus an antisymmetry penalty of weight 1.0. The optimiser is
-  AdamW (lr 1e-4, weight decay 1e-4) with a cosine schedule, batch size 128 and 100 epochs.
-  The checkpoint with the best validation Pearson r is kept. Seeds are 42–49.
-
-All of these settings are the defaults of `guesser train` and `guesser.training.TrainConfig`.
-
-## Reproducing the paper's figures and numbers
-
-Download the data folder from Zenodo (DOI: TODO). It holds the per-member predictions, the
-explanation HDF5 files, two reference files and the MegaScale structures (layout in
-[`analysis/paths.py`](analysis/paths.py)). Then run:
+`guesser train` reproduces one ensemble member with the settings of Table S1: four GAT layers
+of width 256 with four heads, dropout 0.2, AdamW (learning rate 10⁻⁴, weight decay 10⁻⁴,
+cosine annealing over 100 epochs), batch size 128, evidential regularizer weight 0.05
+annealed from 0 over the first 30 epochs, antisymmetry weight λ_anti = 1.0, and early stopping
+on validation r with patience 25. Each training variant is used forward and reversed by
+swapping the wild-type and mutant graphs. The data are the MegaScale single and double
+mutations with the ThermoMPNN-D splits; the released members used seeds 42–49.
 
 ```bash
-GUESSER_DATA=/path/to/data bash analysis/run_all.sh     # writes results/
-```
+# graphs (needs MadraX); a sharded version is in scripts/slurm/build_graphs.sbatch
+guesser build-graphs --table Megascale-S-train.xlsx Megascale-D-train.xlsx --pdb-dir pdb/ --out graphs/train.pt
+guesser build-graphs --table Megascale-S-val.xlsx Megascale-D-val.xlsx --pdb-dir pdb/ --out graphs/val.pt
 
-| manuscript figure | output in `results/figures/` | script |
-| --- | --- | --- |
-| Fig. 1 workflow overview | `fig1_overview_AB` | `analysis/figures/fig1_overview_AB.py` |
-| Fig. 2 predictive performance | `figure_1_nature_performance` | `analysis/figures/fig_performance_calibration.py` |
-| Fig. 3 epistasis | `figure_epistasis_nature` | `analysis/attribution/fig_epistasis_3panel.py`, `fig_epistasis_nature.py` |
-| Fig. 4 uncertainty calibration | `figure_2_uncertainty_calibration` | `analysis/figures/fig_performance_calibration.py` |
-| Fig. 5 selective prediction | `figS4_selective_prediction` | `analysis/audits/binned_selective_prediction.py`, `analysis/figures/figS4_selective_prediction.py` |
-| Fig. 6 protein flagging | `figS5_protein_flagging` | `analysis/attribution/deepdive_protein_flagging.py`, `analysis/figures/figS5_protein_flagging.py` |
-| Fig. 7 per-position uncertainty | `figure_per_position` | `analysis/figures/positional_csvs.py`, `positional_parts/`, `fig_positional_render.py`, `assemble_per_position.py` |
-| Fig. 8 selection | `figure_selection` | `analysis/figures/fig_selection_data.py`, `fig_selection_bars.py` |
-| Fig. 9 attribution rules and trust | `fig4_rules_trust` | `analysis/figures/fig4_rules_trust.py` |
-| SI: selection curves, triage | `figure_selection_curves`, `figure_3_PPV_improvement` | `fig_selection.py`, `fig_triage.py` |
+# one ensemble member (scripts/slurm/train_ensemble.sbatch trains all eight)
+guesser train --train graphs/train.pt --val graphs/val.pt --seed 42 --out-dir runs/ --name guesser_S42
 
-Numbers quoted in the text come from the key-number JSONs and tables in `results/attribution/`
-(attribution analyses and deep dives) and `results/audits/` (attribution-section checks,
-selective prediction, UQ measures, triage, underprediction). See [`analysis/README.md`](analysis/README.md).
-
-## Rerunning the pipeline from structures
-
-```bash
-# 1. graphs (needs MadraX; GPU recommended); sharded example in scripts/slurm/build_graphs.sbatch
-guesser build-graphs --table Megascale-S-train.xlsx Megascale-D-train.xlsx --pdb-dir pdb/ --out graphs/train_r9.pt
-guesser build-graphs --table Megascale-S-val.xlsx Megascale-D-val.xlsx --pdb-dir pdb/ --out graphs/val_r9.pt
-
-# 2. one member per seed (scripts/slurm/train_ensemble.sbatch runs all 8)
-guesser train --train graphs/train_r9.pt --val graphs/val_r9.pt --seed 42 --out-dir runs/ --name guesser_S42
-
-# 3. predictions with your members (or the released ones by default)
-guesser predict --graphs graphs/s669_r9.pt --weights runs/guesser_S4*_best_weights.pt --out s669.csv --member-dir s669_members/
-
-# 4. explanations: one run per member, then the ensemble merge (+ self-contained HDF5)
-guesser explain --dataset graphs/s669_r9.pt --weight_file weights/guesser_S42.pt --seed 42 --pdb_dirs s669_pdbs/ --out_prefix out/s669_S42
+# predictions and integrated-gradients explanations with your members
+guesser predict --graphs graphs/s669.pt --weights runs/guesser_S4*_best_weights.pt --out s669.csv
+guesser explain --dataset graphs/s669.pt --weight_file weights/guesser_S42.pt --seed 42 --pdb_dirs s669_pdbs/ --out_prefix out/s669_S42
 guesser merge-explanations --seed_files "out/s669_S*_raw_data.pt" --out_prefix out/s669 --save_h5
 ```
 
-Read a released explanation file with `guesser.explain.h5.ExplanationFile`. That module needs
-only numpy and h5py, so it can also be copied on its own. `ef.readme` describes every field.
+The ablations of Table S5 use the same command with one change each (seeds 42–45):
+
+| Table S5 configuration | change |
+| --- | --- |
+| Singles only | `--mutation_type single` |
+| MadraX features only | `--feature_set madrax_only` |
+| No MadraX features | `--feature_set no_madrax` |
+| No physics module | `--use_physics false` |
+| No epistasis module | `--use_epistasis false` |
+| EDL λ = 0.01, 0.1, 1.0 | `--edl_lambda_reg 0.01` (etc.) |
+| Radius 7, 11, 13 Å | graphs built with `guesser build-graphs --radius 7` (etc.) |
+
+## Reproducing the figures and tables
+
+Download the data folder from Zenodo (DOI: TODO): the per-member predictions on every
+benchmark, the integrated-gradients explanation files, two reference files and the MegaScale
+structures (layout in [`analysis/paths.py`](analysis/paths.py)). Then:
+
+```bash
+GUESSER_DATA=/path/to/data bash analysis/run_all.sh
+```
+
+This writes every figure and table to `results/paper/` under the manuscript's numbering
+(`Figure_1` … `Figure_9`, `Table_1`, `Table_2`, `Table_S3`, `Table_S4`), with the
+intermediate tables and key numbers of each analysis in `results/`.
+
+| in the paper | script |
+| --- | --- |
+| Fig. 1 Overview of GUESSER | `analysis/figures/fig1_overview_AB.py` |
+| Fig. 2 Performance on the MegaScale test sets and across benchmarks | `analysis/figures/fig_performance_calibration.py` |
+| Fig. 3 Non-additivity of double mutants | `analysis/attribution/fig_epistasis_3panel.py`, `fig_epistasis_nature.py` |
+| Fig. 4 Calibration and error ranking of the uncertainty | `analysis/figures/fig_performance_calibration.py` |
+| Fig. 5 Error rejection among predictions of similar size | `analysis/audits/binned_selective_prediction.py`, `analysis/figures/figS4_selective_prediction.py` |
+| Fig. 6 Choosing predicted neutral and stabilizing variants | `analysis/figures/fig_selection_data.py`, `fig_selection_bars.py` |
+| Fig. 7 Protein-level uncertainty | `analysis/attribution/deepdive_protein_flagging.py`, `analysis/figures/figS5_protein_flagging.py` |
+| Fig. 8 Error-prone positions within a protein | `analysis/figures/positional_csvs.py`, `positional_parts/`, `fig_positional_render.py`, `assemble_per_position.py` |
+| Fig. 9 Burial-dependent rules and their uncertainty | `analysis/figures/fig4_rules_trust.py` |
+| Table 1, Table S3 | `analysis/tables/table1_benchmarks.py` |
+| Table 2 | `analysis/audits/uq_measures_benchmarks.py` |
+| Table S4 | `analysis/attribution/protein_flagging_intra_thresholds.py` |
+| Attribution results (Section 2.7) | `analysis/attribution/` and `analysis/audits/verify_attribution_section/` |
+
+See [`analysis/README.md`](analysis/README.md) for the individual analyses. A released
+explanation file can be read on its own with `guesser.explain.h5.ExplanationFile` (numpy and
+h5py only); `ef.readme` describes every field.
 
 ## Repository layout
 
 ```
-guesser/
-  model.py        GUESSER (+ GUESSER_MODEL_KWARGS, load_model)
-  structure.py    neighbourhoods, CA graph, SASA, MadraX wrappers
-  graphs.py       build_graphs (isolated MadraX), mutation parsing
-  features.py     node feature definitions, feature-set ablations
-  datasets.py     graph-pair datasets, reverse augmentation, collate
-  training.py     TrainConfig, evidential loss, train()
-  inference.py    predict(), per-member and ensemble outputs, metrics
-  explain/        Integrated Gradients: core, residue mapping, per-seed run, merge, HDF5 format
+guesser/          the model package
+  model.py        GUESSER
+  structure.py    neighbourhoods, Cα graph, SASA, MadraX
+  graphs.py       graph construction, mutation parsing
+  features.py     the 23 node features
+  datasets.py     graph pairs, forward/reverse augmentation
+  training.py     evidential loss with antisymmetry, train()
+  inference.py    ensemble prediction and uncertainties
+  explain/        integrated gradients: per-member run, ensemble merge, HDF5 format
   cli.py          the guesser command
-analysis/         paper analysis: paths.py, run_all.sh, attribution/, audits/, figures/
-weights/          guesser_S42.pt ... guesser_S49.pt (released ensemble, state dicts)
-examples/         41 bundled graph pairs + reference outputs from the released runs
+analysis/         figures and tables of the paper
+weights/          guesser_S42.pt … guesser_S49.pt, the eight ensemble members
+examples/         41 bundled graph pairs with reference outputs
 notebooks/        quickstart.ipynb
-scripts/          export_release_data.py (builds the data folder), merge_shards.py, SLURM examples
+scripts/          data-folder export, shard merging, SLURM examples
 tests/            pytest suite
 ```
 
 ## Citation
 
-See `CITATION.cff`. The article reference will be added on publication.
+See `CITATION.cff`.
 
 ## License and third-party data
 
 The code is under the MIT license (`LICENSE`). MadraX is a separate dependency under its own
-license and is not redistributed here. The training and benchmark data (Megascale, S669,
-Ssym, FireProt, PTmul, ProteinGym) belong to their original authors; please cite them when
-you use the deposited graphs.
+license. The training and benchmark data (MegaScale, FireProt-HF, SSYM, S669, PTMUL-D and the
+ProteinGym deep mutational scans) belong to their original authors; please cite them when
+you use the deposited data.

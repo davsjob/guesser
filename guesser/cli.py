@@ -82,7 +82,7 @@ def cmd_predict(args):
         os.makedirs(args.member_dir, exist_ok=True)
         for w, m in zip(weights, members):
             m.to_csv(os.path.join(args.member_dir, os.path.basename(w).replace('.pt', '_predictions.csv')), index=False)
-    show = ens[['pdb', 'mutation', 'pred_ddg', 'intra_epistemic_std', 'aleatoric_std', 'total_std']]
+    show = ens[['pdb', 'mutation', 'pred_ddg', 'intra_epistemic_std', 'calibrated_std', 'aleatoric_std']]
     print(show.head(args.show).to_string(index=False))
     if ens['true_ddg'].abs().sum() > 0:
         print(metrics(ens, sigma='intra_epistemic_std'))

@@ -1,9 +1,27 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite the accompanying article."
-title: "guesser: explainable, uncertainty-aware graph neural network for mutation ddG"
+title: "GUESSER: Graph network for Uncertainty-aware, Explainable Stability Shifts from Evidential Regression"
 version: 1.0.0
 license: MIT
+repository-code: "https://github.com/davsjob/guesser"
 authors:
   - family-names: Sjöberg
     given-names: David
-# TODO: add co-authors, ORCID, the article reference and the Zenodo DOI on publication
+  - family-names: Koenekoop
+    given-names: Lucien
+  - family-names: Åqvist
+    given-names: Johan
+  - family-names: Gutiérrez-de-Terán
+    given-names: Hugo
+preferred-citation:
+  type: article
+  title: "Evidential Graph Neural Networks for Explainable and Uncertainty-Aware Thermostability Prediction in Protein Engineering"
+  authors:
+    - family-names: Sjöberg
+      given-names: David
+    - family-names: Koenekoop
+      given-names: Lucien
+    - family-names: Åqvist
+      given-names: Johan
+    - family-names: Gutiérrez-de-Terán
+      given-names: Hugo

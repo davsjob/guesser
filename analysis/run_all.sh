@@ -2,7 +2,7 @@
 # Regenerate every analysis table, key-number JSON and manuscript figure from the data folder.
 #   GUESSER_DATA=/path/to/data bash analysis/run_all.sh        (about 1 h on a laptop; the MegaScale H5 is 6.7 GB)
 # Outputs go to $GUESSER_RESULTS (default: results/). Needs numpy, pandas, scipy, h5py, matplotlib,
-# seaborn, scikit-learn; Fig. 7's structure render also needs PyMOL (skipped if missing).
+# seaborn, scikit-learn; the structure render of Fig. 8b also uses PyMOL.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PY=${PYTHON:-python}
@@ -32,7 +32,7 @@ for s in deepdive_feature_direction deepdive_attribution_mechanisms deepdive_com
     echo "--- $s"; $PY "$s.py"
 done
 
-step "3. audits: attribution-section checks, selective prediction, UQ measures, triage, underprediction"
+step "3. audits: attribution-section checks, selective prediction, uncertainty measures (Table 2)"
 cd "$HERE/audits/verify_attribution_section"
 for s in part_a_mu part_a2_dssp part_b_sigma part_c_doubles_limits part_d_predbins part_e_table23 part_f_doubles_predbins; do
     echo "--- $s"; $PY "$s.py"
@@ -40,7 +40,7 @@ done
 cd "$HERE/audits"
 cd "$RES/audits"
 for m in singles doubles plot; do $PY "$HERE/audits/normalized_selective_prediction.py" "$m"; done
-for s in binned_selective_prediction uq_measures_benchmarks triage_intra underprediction_check; do
+for s in binned_selective_prediction uq_measures_benchmarks; do
     echo "--- $s"; $PY "$HERE/audits/$s.py"
 done
 
@@ -53,19 +53,29 @@ $PY "$F/uq_metrics.py"
 $PY "$F/uq_numbers_intra.py"
 mkdir -p fig1_parts; $PY "$F/fig1_extract_ig.py"
 if $PY -c "import pymol" 2>/dev/null; then $PY "$F/fig1_render_structure.py"; else cp "$F/assets/2k5h_L74.png" "$F/assets/2k5h_L74_nodes.csv" fig1_parts/; fi
-$PY "$F/fig1_overview_AB.py"                   # Fig. 1  figure_overview
-$PY "$F/fig_performance_calibration.py"        # Fig. 2  figure_1_nature_performance, Fig. 4 figure_2_uncertainty_calibration
+$PY "$F/fig1_overview_AB.py"                   # Fig. 1
+$PY "$F/fig_performance_calibration.py"        # Fig. 2 and Fig. 4
 # Fig. 3 figure_epistasis_nature was written in step 2 (attribution/fig_epistasis_nature.py)
-$PY "$F/figS4_selective_prediction.py"         # Fig. 5  figure_selective_prediction
-$PY "$F/figS5_protein_flagging.py"             # Fig. 6  figure_protein_flag
-$PY "$F/positional_csvs.py" ""                 # Fig. 7  figure_per_position (data)
+$PY "$F/figS4_selective_prediction.py"         # Fig. 5
+$PY "$F/figS5_protein_flagging.py"             # Fig. 7
+$PY "$F/positional_csvs.py" ""                 # Fig. 8 (per-position data)
 mkdir -p positional_parts; (cd positional_parts && $PY "$F/positional_parts/parts_a.py" && $PY "$F/positional_parts/parts.py")
-if $PY -c "import pymol" 2>/dev/null; then $PY "$F/fig_positional_render.py"; else echo "PyMOL not installed: skipping the 2K5H render (Fig. 7b)"; fi
-[ -f fig_positional_render_sigma.png ] && $PY "$F/assemble_per_position.py" || echo "skipping Fig. 7 assembly (no render)"
-$PY "$F/fig_selection_data.py"                 # Fig. 8  figure_selection
-$PY "$F/fig_selection.py" data/figure_selection_numbers.csv .        # SI: curve version
-for e in png pdf; do mv figure_selection.$e figure_selection_curves.$e; done
-$PY "$F/fig_selection_bars.py" data/figure_selection_numbers.csv .   # Fig. 8: bar version
-$PY "$F/fig4_rules_trust.py"                   # Fig. 9  figure_rules_trust
-$PY "$F/fig_triage.py"                        # SI: figure_3_PPV_improvement
-echo; echo "done: results in $RES"
+if $PY -c "import pymol" 2>/dev/null; then $PY "$F/fig_positional_render.py"; else echo "PyMOL not installed: skipping the 2K5H render (Fig. 8b)"; fi
+[ -f fig_positional_render_sigma.png ] && $PY "$F/assemble_per_position.py" || echo "skipping Fig. 8 assembly (no render)"
+$PY "$F/fig_selection_data.py"                 # Fig. 6
+$PY "$F/fig_selection_bars.py" data/figure_selection_numbers.csv .
+$PY "$F/fig4_rules_trust.py"                   # Fig. 9
+
+step "5. tables and the manuscript figures under their paper names"
+$PY "$HERE/tables/table1_benchmarks.py"        # Table 1 and Table S3
+P="$RES/paper"; mkdir -p "$P"
+cp "$RES/tables/table1_benchmarks.csv" "$P/Table_1.csv"
+cp "$RES/audits/uq_measures_benchmarks/table.csv" "$P/Table_2.csv"
+cp "$RES/tables/table_s3_dms.csv" "$P/Table_S3.csv"
+cp "$RES/attribution/deepdive_protein_flagging/intra_thresholds.json" "$P/Table_S4.json"
+for pair in 1:fig1_overview_AB 2:figure_1_nature_performance 3:figure_epistasis_nature 4:figure_2_uncertainty_calibration \
+            5:figS4_selective_prediction 6:figure_selection 7:figS5_protein_flagging 8:figure_per_position 9:fig4_rules_trust; do
+    n=${pair%%:*}; f=${pair#*:}
+    for e in pdf png; do [ -f "$RES/figures/$f.$e" ] && cp "$RES/figures/$f.$e" "$P/Figure_$n.$e"; done
+done
+echo; echo "done: results in $RES (manuscript figures and tables in $RES/paper)"

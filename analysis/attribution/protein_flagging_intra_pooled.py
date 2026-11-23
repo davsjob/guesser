@@ -35,5 +35,6 @@ allsets = list(tables)
 noss = [n for n in allsets if not n.startswith("Ssym")]
 out["pooled_intra_all"] = pooled(allsets, "sig"); out["pooled_intra_noSsym"] = pooled(noss, "sig")
 out["pooled_old_noSsym"] = pooled(noss, "sig_old")
+(cfg.OUT_DIR / "deepdive_protein_flagging").mkdir(parents=True, exist_ok=True)
 json.dump(out, open(cfg.OUT_DIR / "deepdive_protein_flagging" / "intra_pooled.json", "w"), indent=1)
 print(json.dumps(out, indent=1))

@@ -36,7 +36,7 @@ FORMAT_VERSION = 'explain_s_std_a_h5_v3'
 
 README = """GUESSER ensemble explanations (Integrated Gradients), format explain_s_std_a_h5_v3.
 
-MODEL: GUESSER (guesser/model.py; trained as SiameseEvidentialResGAT_Ultimate), 8 seeds (see /meta seeds,
+MODEL: GUESSER (guesser/model.py), 8 seeds (see /meta seeds,
 weight_files, weight_md5), outputs mu = gamma_phys + gamma_base + gamma_epi and NIG (v, alpha, beta).
 Predictions are the raw model(batch_wt, batch_mt) outputs (identical to the benchmark CSVs).
 

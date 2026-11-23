@@ -7,7 +7,7 @@ from paths import ATTRIBUTION_OUT
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
 from scipy.stats import pearsonr, rankdata
 A3 = str(ATTRIBUTION_OUT) + "/"
-plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["DejaVu Sans", "Helvetica", "Arial", "Liberation Sans"],
+plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold",
     "font.size": 7.5, "lines.linewidth": 1.3, "axes.linewidth": 0.7, "grid.linewidth": 0.5,
     "grid.alpha": 0.45, "grid.linestyle": ":", "savefig.dpi": 300, "pdf.fonttype": 42, "ps.fonttype": 42})
 U = "sigma_intra"
@@ -31,7 +31,7 @@ for j, (sname, lab, col, mk) in enumerate(SETS):
     ax.set_xlim(0.15, 1.0); ax.set_xticks(np.arange(0.2, 1.01, 0.2)); ax.set_ylim(-0.2, 1.0); ax.set_yticks(np.arange(-0.2, 1.01, 0.2))
     ax.grid(True); ax.set_title(lab, pad=4, fontsize=8.5, loc="left")
     ax.set_xlabel(r"Mean $\sigma_e$ per protein (kcal$\cdot$mol$^{-1}$)", fontsize=7)
-    ax.text(-0.06 if j else -0.2, 1.13, "abc"[j], transform=ax.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
+    ax.text(-0.06 if j else -0.2, 1.13, "ABC"[j], transform=ax.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
 axs[0].set_ylabel("Per-protein Pearson $r$")
 for ext in ("pdf", "png"): fig.savefig(f"figS5_protein_flagging.{ext}", bbox_inches="tight", pad_inches=0.05)
 print("ok"); [print(lab, pearsonr(pp[pp.set == s][U], pp[pp.set == s].r)) for s, lab, _, _ in SETS]

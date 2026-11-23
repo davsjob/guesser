@@ -46,7 +46,7 @@ The definitions used in these scripts:
 | --- | --- |
 | `verify_attribution_section/part_*.py` | independent recomputation of every number in the attribution section |
 | `binned_selective_prediction.py` | error rejection globally and within bins of predicted ΔΔG (Fig. 5) |
-| `normalized_selective_prediction.py` | the same with σ_e normalised by its typical value at the same predicted ΔΔG (bin-edge check, Section 1.6) |
+| `normalized_selective_prediction.py` | the same with σ_e normalised by its typical value at the same predicted ΔΔG (bin-edge check, Section 2.6) |
 | `uq_measures_benchmarks.py` | AUCO and ρ with the absolute error for σ_a, σ_e and 1/Φ on every benchmark (Table 2) |
 
 ## tables/

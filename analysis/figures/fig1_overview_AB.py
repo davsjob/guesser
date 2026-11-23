@@ -120,31 +120,34 @@ arrow((1.47, 1.62), (1.66, 1.88), conn="arc3,rad=-0.15"); arrow((1.47, 1.30), (1
 ax.text(GX, 0.66, "residues ≤ 9 Å\n23 features per node", ha="center", va="top", fontsize=5 * FS, color="#555555", linespacing=1.15)
 
 # --- 8-seed ensemble enclosure
-ax.add_patch(FancyBboxPatch((2.50, 0.50), 3.62, 1.95, boxstyle="round,pad=0,rounding_size=0.08", fc="none", ec="#9A9A9A", lw=0.6, ls=(0, (3, 2))))
+ax.add_patch(FancyBboxPatch((3.10, 0.50), 3.02, 1.95, boxstyle="round,pad=0,rounding_size=0.08", fc="none", ec="#9A9A9A", lw=0.6, ls=(0, (3, 2))))
 ax.text(6.08, 2.37, "× 8 seeds", ha="right", va="center", fontsize=5.5 * FS, color="#555555")
 
-# --- siamese GAT
+# --- one encoder (2026-11-06): both graphs share the WT topology; per residue, the WT features and the
+#     mutation-induced change are concatenated and encoded by a single four-layer GATv2
 GAT_FC, GAT_EC = "#DCEBD8", "#6E9A64"
-box(2.62, 1.73, 0.68, 0.46, GAT_FC, GAT_EC, "GAT", "4 layers")
-box(2.62, 0.89, 0.68, 0.46, GAT_FC, GAT_EC, "GAT", "4 layers")
-ax.text(2.96, 1.54, "shared weights", ha="center", va="center", fontsize=5.5 * FS, color=GAT_EC, style="italic")
-ax.plot([2.96, 2.96], [1.37, 1.47], c=GAT_EC, lw=0.6, ls=":"); ax.plot([2.96, 2.96], [1.61, 1.71], c=GAT_EC, lw=0.6, ls=":")
-arrow((2.40, 1.96), (2.62, 1.96)); arrow((2.40, 1.12), (2.62, 1.12))
-
-# --- difference node
-DX, DY, DR = 3.56, 1.51, 0.13
-ax.add_patch(Circle((DX, DY), DR, fc="white", ec=INK, lw=0.7, zorder=3))
-ax.text(DX, DY + 0.005, "Δ", ha="center", va="center", fontsize=7 * FS, zorder=4)
-ax.text(DX - 0.19, DY + 0.17, "−", ha="center", va="center", fontsize=7 * FS, color=INK)
-ax.text(DX - 0.19, DY - 0.17, "+", ha="center", va="center", fontsize=7 * FS, color=INK)
-arrow((3.30, 1.96), (DX - 0.10, DY + 0.08), conn="arc3,rad=-0.25"); arrow((3.30, 1.12), (DX - 0.11, DY - 0.07), conn="arc3,rad=0.25")
+CY = 1.54
+# explicit concatenation box: per residue, WT descriptors next to the mutation-induced change (2026-11-23)
+KX0, KW, KH = 2.47, 0.60, 0.92
+ax.add_patch(FancyBboxPatch((KX0, CY - KH / 2), KW, KH, boxstyle="round,pad=0,rounding_size=0.06", fc="white", ec=INK, lw=0.7))
+ax.text(KX0 + KW / 2, CY + KH / 2 - 0.08, "Concatenate", ha="center", va="top", fontsize=5.5 * FS)
+for k, (lab, fc, ec) in enumerate([(r"$x_\mathrm{WT}$", NODE_FC, NODE_EC), (r"$x_\mathrm{MT} - x_\mathrm{WT}$", "#F6D3CF", MUT)]):
+    yk = CY + 0.06 - k * 0.27
+    ax.add_patch(FancyBboxPatch((KX0 + 0.06, yk - 0.10), KW - 0.12, 0.20, boxstyle="round,pad=0,rounding_size=0.03", fc=fc, ec=ec, lw=0.5))
+    ax.text(KX0 + KW / 2, yk, lab, ha="center", va="center", fontsize=4.8 * FS)
+arrow((2.33, 1.96), (KX0, CY + 0.26), conn="arc3,rad=-0.15"); arrow((2.33, 1.12), (KX0, CY - 0.26), conn="arc3,rad=0.15")
+GX0, GW = 3.20, 0.60
+box(GX0, CY - 0.30, GW, 0.60, GAT_FC, GAT_EC, "GATv2", "4 layers")
+arrow((KX0 + KW, CY), (GX0, CY))
+ax.text(GX0 + GW / 2, CY - 0.36, "one pass on\nthe WT graph", ha="center", va="top", fontsize=5 * FS, color="#555555", linespacing=1.15)
+GXR = GX0 + GW
 
 # --- three output streams
 SX, SW, SH = 3.92, 1.10, 0.44
-box(SX, 1.85, SW, SH, "#E7E2F1", "#8E81B8", "Global Δ", "all nodes")
+box(SX, 1.85, SW, SH, "#E7E2F1", "#8E81B8", "Global head", "all nodes + mutated sites")
 box(SX, 1.29, SW, SH, "#DDE7F4", "#6F8FBF", "Multi-mutation head", "mutated sites, ≥ 2 only", ls=(0, (3, 1.5)))
 box(SX, 0.54, SW, SH, "#F4E6CC", "#B98F45", "Physics prior", "linear in Σ ΔE (MadraX)")
-arrow((DX + 0.10, DY + 0.09), (SX, 2.07), conn="arc3,rad=-0.2"); arrow((DX + DR, DY - 0.0), (SX, 1.51))
+arrow((GXR, CY + 0.18), (SX, 2.07), conn="arc3,rad=-0.2"); arrow((GXR, 1.51), (SX, 1.51))
 # MadraX bypasses the GNN: from the graphs, under the GAT
 ax.annotate("", xy=(SX, 0.76), xytext=(2.32, 0.76), arrowprops=dict(arrowstyle="-|>", lw=0.7, color="#B98F45", shrinkA=0, shrinkB=0, mutation_scale=6))
 

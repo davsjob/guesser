@@ -1,7 +1,7 @@
 """Assemble figure_per_position.png from positional_parts/ (a, c) and the PyMOL renders (b), in the manuscript's layout
 (previously assembled in PowerPoint). Run from results/figures/."""
 import numpy as np, matplotlib.pyplot as plt, matplotlib.image as mpimg
-plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"]})
+plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold"})
 def crop(im):
     a = im[..., 3] if im.shape[-1] == 4 else 1 - im[..., :3].min(-1)
     ys, xs = np.where(a > 0.02); return im[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
@@ -17,5 +17,5 @@ place(C, [0.53, 0.08, 0.43, 0.42])
 fig.text(0.59, 0.52, r"Epistemic Uncertainty ($\sigma_e$)", ha="center", fontsize=12)
 fig.text(0.82, 0.52, "Prediction Error (MAE)", ha="center", fontsize=12)
 for x, y, l in [(0.03, 0.92, "a"), (0.47, 0.92, "b"), (0.47, 0.47, "c")]:
-    fig.text(x, y, l, fontsize=16, fontweight="bold", va="top", fontfamily="Arial")
+    fig.text(x, y, l.upper(), fontsize=16, fontweight="bold", va="top", fontfamily="Arial")
 for ext in ("png", "pdf"): fig.savefig(f"figure_per_position.{ext}", dpi=300, facecolor="white")

@@ -23,6 +23,7 @@ for ds in cfg.DATASETS:
                          sig_cut=[round(th[0].sig.max(), 3), round(th[2].sig.min(), 3)])
             ser.append(e)
         res["series"] = ser; out[name] = res
+(cfg.OUT_DIR / "deepdive_protein_flagging").mkdir(parents=True, exist_ok=True)
 json.dump(out, open(cfg.OUT_DIR / "deepdive_protein_flagging" / "intra_thresholds.json", "w"), indent=1)
 for k, r in out.items():
     print(k, {x: r[x] for x in ("n_variants_all", "n_proteins_all", "mean_sigma", "mae")})

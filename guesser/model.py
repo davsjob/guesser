@@ -1,8 +1,9 @@
 """
-Evidential Siamese GNN for mutation ddG with uncertainty.
+GUESSER: evidential graph neural network for mutation ddG with uncertainty.
 
-The network sees a wild-type graph and a mutant graph that share nodes and edges and
-differ only in node features. It predicts
+The wild-type and mutant graphs share nodes and edges and differ only in node features.
+For each residue, the wild-type features and the mutation-induced change (MT - WT) are
+concatenated and encoded in one pass by four GATv2 layers. The network predicts
 
     mu = gamma_phys + gamma_base + gamma_epi
 
@@ -16,7 +17,7 @@ and the Normal-Inverse-Gamma parameters (v, alpha, beta) of an evidential head:
 * gamma_epi:  epistasis head, attentional pooling over mutated nodes; hard-zeroed for singles
 
 Module and attribute names match the training code, so the released checkpoints load
-with strict=True. In the training code this class was SiameseEvidentialResGAT_Ultimate.
+with strict=True.
 """
 import torch
 import torch.nn as nn

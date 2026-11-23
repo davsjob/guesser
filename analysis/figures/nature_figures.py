@@ -57,7 +57,7 @@ PALETTE = {
 plt.style.use("seaborn-v0_8-ticks" if "seaborn-v0_8-ticks" in plt.style.available else "default")
 plt.rcParams.update({
     "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans", "Liberation Sans"],
+    "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold",
     "font.size": 7.5,
     "axes.labelsize": 8.5,
     "axes.titlesize": 9.5,
@@ -308,7 +308,7 @@ def generate_nature_figure_1(df_test, benchmarks, out_dir=OUT_DIR, save=True):
 
     # ── Panel a: MegaScale Singles ──────────────────────────────────────────
     ax_a = fig.add_subplot(gs[0, 0])
-    ax_a.text(-0.14, 1.06, "a", transform=ax_a.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
+    ax_a.text(-0.14, 1.06, "A", transform=ax_a.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
     ax_a.scatter(
         df_s["true_ddg"], df_s["pred_ddg"],
         s=2.5, color=PALETTE.get("blue", "#2B5C8F"), alpha=0.18, rasterized=True, zorder=1
@@ -331,7 +331,7 @@ def generate_nature_figure_1(df_test, benchmarks, out_dir=OUT_DIR, save=True):
 
     # ── Panel b: MegaScale Doubles ──────────────────────────────────────────
     ax_b = fig.add_subplot(gs[0, 1])
-    ax_b.text(-0.14, 1.06, "b", transform=ax_b.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
+    ax_b.text(-0.14, 1.06, "B", transform=ax_b.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
     ax_b.scatter(
         df_d["true_ddg"], df_d["pred_ddg"],
         s=2.5, color=PALETTE.get("purple", "#7B4397"), alpha=0.18, rasterized=True, zorder=1
@@ -354,7 +354,7 @@ def generate_nature_figure_1(df_test, benchmarks, out_dir=OUT_DIR, save=True):
 
     # ── Panel c: Grouped Cross-Benchmark Generalization ─────────────────────
     ax_c = fig.add_subplot(gs[1, :])
-    ax_c.text(-0.06, 1.06, "c", transform=ax_c.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
+    ax_c.text(-0.06, 1.06, "C", transform=ax_c.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
 
     benchmark_entries = [
         ("Mega-S", df_s, "Single-Point $\\Delta\\Delta G$"),
@@ -535,7 +535,7 @@ def generate_figure_2(df_test=None, out_dir="manuscript_figures", save=True):
     plt.style.use("seaborn-v0_8-ticks" if "seaborn-v0_8-ticks" in plt.style.available else "default")
     plt.rcParams.update({
         "font.family":     "sans-serif",
-        "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans", "Liberation Sans"],
+        "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold",
         "font.size":        7.5,
         "axes.labelsize":   8.5,
         "axes.titlesize":   9.5,
@@ -595,7 +595,7 @@ def generate_figure_2(df_test=None, out_dir="manuscript_figures", save=True):
     # ── Panel a-top: Singles Calibration ─────────────────────────────────────
     ax_a1 = fig.add_subplot(gs[0, 0])
     ax_a1.set_box_aspect(1.0)
-    ax_a1.text(-0.25, 1.22, "a", transform=ax_a1.transAxes,
+    ax_a1.text(-0.25, 1.22, "A", transform=ax_a1.transAxes,
                fontsize=11.0, fontweight="bold", va="top", ha="right")
     ax_a1.text(-0.08, 1.22, "Error-based calibration", transform=ax_a1.transAxes,
                fontsize=9.0, fontweight="normal", va="top", ha="left")
@@ -605,7 +605,7 @@ def generate_figure_2(df_test=None, out_dir="manuscript_figures", save=True):
     ax_a1.plot(rmv_raw_s, rmse_raw_s, "o:", ms=3.8, lw=1.2, color=c_singles_raw,
                label=rf"Raw ($\mathrm{{ENCE}}={ence_raw_s:.2f}$)", zorder=3)
     ax_a1.plot(rmv_cal_s, rmse_cal_s, "o-", ms=3.8, lw=1.4, color=c_singles_scaled,
-               label=rf"Scaled ($s^*={s_star:.2f}$, $\mathrm{{ENCE}}={ence_cal_s:.2f}$)", zorder=4)
+               label=rf"Scaled ($s^{{\ast}}={s_star:.2f}$, $\mathrm{{ENCE}}={ence_cal_s:.2f}$)", zorder=4)
 
     ax_a1.set_xlim(0.0, cal_lim)
     ax_a1.set_ylim(0.0, cal_lim)
@@ -624,7 +624,7 @@ def generate_figure_2(df_test=None, out_dir="manuscript_figures", save=True):
     ax_a2.plot(rmv_raw_d, rmse_raw_d, "s:", ms=3.8, lw=1.2, color=c_doubles_raw,
                label=rf"Raw ($\mathrm{{ENCE}}={ence_raw_d:.2f}$)", zorder=2)
     ax_a2.plot(rmv_cal_d, rmse_cal_d, "s-", ms=3.8, lw=1.4, color=c_doubles_scaled,
-               label=rf"Scaled ($s^*={s_star:.2f}$, $\mathrm{{ENCE}}={ence_cal_d:.2f}$)", zorder=3)
+               label=rf"Scaled ($s^{{\ast}}={s_star:.2f}$, $\mathrm{{ENCE}}={ence_cal_d:.2f}$)", zorder=3)
 
     ax_a2.set_xlim(0.0, cal_lim)
     ax_a2.set_ylim(0.0, cal_lim)
@@ -640,7 +640,7 @@ def generate_figure_2(df_test=None, out_dir="manuscript_figures", save=True):
     # ── Panel b-top: Singles Sparsification ───────────────────────────────────
     ax_b1 = fig.add_subplot(gs[0, 1])
     ax_b1.set_box_aspect(1.0)
-    ax_b1.text(-0.25, 1.22, "b", transform=ax_b1.transAxes,
+    ax_b1.text(-0.25, 1.22, "B", transform=ax_b1.transAxes,
                fontsize=11.0, fontweight="bold", va="top", ha="right")
     ax_b1.text(-0.08, 1.22, "Uncertainty-based error rejection", transform=ax_b1.transAxes,
                fontsize=9.0, fontweight="normal", va="top", ha="left")

@@ -20,14 +20,14 @@ OUT = FIGURES_OUT
 
 plt.style.use("seaborn-v0_8-ticks" if "seaborn-v0_8-ticks" in plt.style.available else "default")
 plt.rcParams.update({
-    "font.family": "sans-serif", "font.sans-serif": ["DejaVu Sans", "Helvetica", "Arial", "Liberation Sans"],
+    "font.family": "sans-serif", "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold",
     "font.size": 7, "axes.labelsize": 7.5, "axes.titlesize": 8.5, "xtick.labelsize": 6.8, "ytick.labelsize": 6.8,
     "legend.fontsize": 6.2, "axes.linewidth": 0.6, "xtick.major.width": 0.6, "ytick.major.width": 0.6,
     "xtick.major.size": 2.8, "ytick.major.size": 2.8, "xtick.direction": "out", "ytick.direction": "out",
     "xtick.major.pad": 2.5, "ytick.major.pad": 2.5, "axes.labelpad": 3,
     "grid.linewidth": 0.4, "grid.alpha": 0.5, "grid.linestyle": ":", "grid.color": "#B0B0B0",
-    "figure.dpi": 300, "savefig.dpi": 300, "mathtext.fontset": "custom", "mathtext.rm": "sans",
-    "mathtext.it": "sans:italic", "mathtext.bf": "sans:bold", "pdf.fonttype": 42, "ps.fonttype": 42,
+    "figure.dpi": 300, "savefig.dpi": 300, "mathtext.fontset": "custom", "mathtext.rm": "Arial",
+    "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold", "pdf.fonttype": 42, "ps.fonttype": 42,
 })
 PLUM, ORCHID, GREY, ORANGE, INK, EXPC = "#7B4397", "#BA68C8", "#A7ADB4", "#D9822B", "#2B2B2B", "#4A5568"
 UNIT = r"(kcal mol$^{-1}$)"
@@ -35,7 +35,7 @@ LEG = dict(frameon=True, facecolor="white", framealpha=0.95, edgecolor="#D5D5D5"
            handlelength=1.0, handletextpad=0.5, borderpad=0.45, borderaxespad=0.5)
 
 def header(ax, letter, title):
-    ax.text(-0.25, 1.045, letter, transform=ax.transAxes, fontsize=10.5, fontweight="bold", va="bottom", ha="left")
+    ax.text(-0.25, 1.045, letter.upper(), transform=ax.transAxes, fontsize=10.5, fontweight="bold", va="bottom", ha="left")
     ax.text(0.0, 1.045, title, transform=ax.transAxes, fontsize=8.3, va="bottom", ha="left")
 
 def statbox(ax, lines, x=0.04, y=0.96, ha="left"):

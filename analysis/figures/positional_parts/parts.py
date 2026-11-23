@@ -2,7 +2,7 @@
 import numpy as np, pandas as pd, matplotlib.pyplot as plt, matplotlib as mpl
 from scipy.stats import pearsonr, spearmanr
 D = "../data/"  # run from results/figures/positional_parts
-plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans", "Liberation Sans"],
+plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold",
     "font.size": 7.5, "lines.linewidth": 1.2, "axes.linewidth": 0.7, "grid.linewidth": 0.5, "grid.alpha": 0.45, "grid.linestyle": ":",
     "savefig.dpi": 600, "pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "none"})
 C_SIG, C_ERR, C_PAR = "#B2182B", "#2B5C8F", "#8C8C8C"

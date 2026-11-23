@@ -1,7 +1,7 @@
 """Panel a, matching David's original lollipop layout (viridis by value, value labels, mean/median lines, legend lower right).
 EDL-only sigma_e; MegaScale singles, forward. Variant *_with_partial adds the effect-size-controlled partial rho (open grey)."""
 import numpy as np, pandas as pd, matplotlib.pyplot as plt, matplotlib as mpl
-plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"], "font.size": 7.5,
+plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold", "font.size": 7.5,
     "axes.linewidth": 0.7, "savefig.dpi": 600, "pdf.fonttype": 42, "svg.fonttype": "none"})
 pp = pd.read_csv("../data/positional_intra_megascale_v2.csv").sort_values("spearman").reset_index(drop=True)
 mean, med = pp.spearman.mean(), pp.spearman.median()

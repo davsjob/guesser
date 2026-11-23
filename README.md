@@ -25,10 +25,11 @@ Sign convention: ΔΔG > 0 is destabilizing (kcal mol⁻¹).
   MadraX energy terms (Table S2). Wild-type and mutant graphs share the topology and differ
   only in node features. Double mutants with overlapping neighbourhoods form one graph;
   distant ones form two disconnected components.
-* **Siamese GNN.** Both graphs are encoded by shared graph attention (GAT) layers. Their
-  difference feeds a global head and a multi-mutation (epistasis) head, active only for two or
-  more mutations, and the summed MadraX energy differences feed a linear physics prior:
-  μ = γ_base + γ_epi + γ_phys.
+* **Graph encoder.** For each residue, the wild-type features and the mutation-induced
+  changes (MT − WT) are concatenated and encoded in one pass by four graph attention (GATv2)
+  layers with residual connections. The resulting representation feeds a global head and a
+  multi-mutation (epistasis) head, active only for two or more mutations, and the summed
+  MadraX energy differences feed a linear physics prior: μ = γ_base + γ_epi + γ_phys.
 * **Evidential regression.** The evidential head predicts the Normal-Inverse-Gamma parameters
   (γ, ν, α, β). Over the eight ensemble members, the prediction is μ = mean(γ), the epistemic
   uncertainty is σ_e = √(mean β/(ν(α−1))), the aleatoric uncertainty is
@@ -98,7 +99,7 @@ predictions and the raw (ν, α, β).
 
 ## Training
 
-`guesser train` reproduces one ensemble member with the settings of Table S1: four GAT layers
+`guesser train` reproduces one ensemble member with the settings of Table S1: four GATv2 layers
 of width 256 with four heads, dropout 0.2, AdamW (learning rate 10⁻⁴, weight decay 10⁻⁴,
 cosine annealing over 100 epochs), batch size 128, evidential regularizer weight 0.05
 annealed from 0 over the first 30 epochs, antisymmetry weight λ_anti = 1.0, and early stopping
@@ -160,7 +161,7 @@ intermediate tables and key numbers of each analysis in `results/`.
 | Table 1, Table S3 | `analysis/tables/table1_benchmarks.py` |
 | Table 2 | `analysis/audits/uq_measures_benchmarks.py` |
 | Table S4 | `analysis/attribution/protein_flagging_intra_thresholds.py` |
-| Attribution results (Section 2.7) | `analysis/attribution/` and `analysis/audits/verify_attribution_section/` |
+| Attribution results (Section 3.7) | `analysis/attribution/` and `analysis/audits/verify_attribution_section/` |
 
 See [`analysis/README.md`](analysis/README.md) for the individual analyses. A released
 explanation file can be read on its own with `guesser.explain.h5.ExplanationFile` (numpy and

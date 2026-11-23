@@ -5,7 +5,7 @@ _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 
 from paths import AUDITS_OUT
 import ast, numpy as np, pandas as pd, matplotlib.pyplot as plt
 A = str(AUDITS_OUT / "binned_selective_prediction") + "/"
-plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["DejaVu Sans", "Helvetica", "Arial", "Liberation Sans"],
+plt.rcParams.update({"font.family": "sans-serif", "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold",
     "font.size": 7.5, "legend.fontsize": 6.0, "lines.linewidth": 1.3, "axes.linewidth": 0.7, "grid.linewidth": 0.5,
     "grid.alpha": 0.45, "grid.linestyle": ":", "savefig.dpi": 300, "pdf.fonttype": 42, "ps.fonttype": 42})
 COL = {"singles": ("#2B5C8F", "#5D9ECE"), "doubles": ("#7B4397", "#BA68C8")}
@@ -46,7 +46,7 @@ for r, (setn, mk) in enumerate([("singles", "o"), ("doubles", "s")]):
         axs[r, 0].set_xlabel("Retained Dataset Fraction (%)"); axs[r, 1].set_xlabel("Retained Dataset Fraction (%)")
         ax.set_xlabel(r"Predicted $\Delta\Delta G$ bin (kcal$\cdot$mol$^{-1}$)")
 for j, (letter, title) in enumerate([("a", "Error rejection"), ("b", "Ranking of retained set"), ("c", "Within-bin filtering per bin")]):
-    ax = axs[0, j]; ax.text(-0.25, 1.24, letter, transform=ax.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
+    ax = axs[0, j]; ax.text(-0.25, 1.24, letter.upper(), transform=ax.transAxes, fontsize=11, fontweight="bold", va="top", ha="right")
     ax.text(-0.08, 1.24, title, transform=ax.transAxes, fontsize=9, va="top", ha="left")
 from matplotlib.lines import Line2D
 H = [Line2D([], [], c="#333333", ls="-", marker="o", ms=3.6, lw=1.4, label=r"$\sigma_e$, global"),

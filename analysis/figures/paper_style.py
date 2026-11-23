@@ -15,14 +15,14 @@ HALF_W = 4.7   # in, two-column width (~12 cm)
 def setup():
     mpl.rcParams.update({
         "font.family": "sans-serif",
-        "font.sans-serif": ["Arial", "Liberation Sans", "Helvetica", "DejaVu Sans"],
+        "font.sans-serif": ["Arial", "Liberation Sans", "DejaVu Sans"], "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold",
         "font.size": 7, "axes.titlesize": 7, "axes.labelsize": 7,
         "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "legend.fontsize": 6.5,
         "axes.linewidth": 0.6, "xtick.major.width": 0.6, "ytick.major.width": 0.6,
         "xtick.major.size": 2.5, "ytick.major.size": 2.5,
         "axes.spines.top": False, "axes.spines.right": False,
         "legend.frameon": False, "savefig.dpi": 600, "pdf.fonttype": 42, "ps.fonttype": 42,
-        "mathtext.default": "regular",
+        
     })
 
 def panel(ax, letter, x=-0.18, y=1.06):

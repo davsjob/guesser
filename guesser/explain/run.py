@@ -32,9 +32,7 @@ import torch
 from torch_geometric.loader import DataLoader
 from tqdm import tqdm
 
-from ..datasets import CoordinateNoiseDataset as SiameseNoisyDataset
-from ..datasets import GraphPairDataset as SiameseInMemoryDataset
-from ..datasets import collate_pairs as siamese_collate
+from ..datasets import CoordinateNoiseDataset, GraphPairDataset, collate_pairs
 from ..features import FEATURE_NAMES
 from .core import (
     TARGETS, TARGET_KEYS, GUESSER_MODEL_KWARGS, explain_batch, file_md5, load_explain_model,
@@ -80,9 +78,9 @@ def main(argv=None):
     print(f"Device: {device} | Gauss-Legendre nodes: {args.n_steps} | batch: {args.batch_size}")
 
     graphs = torch.load(args.dataset, weights_only=False)
-    base_dataset = SiameseInMemoryDataset(graphs)
-    loader = DataLoader(SiameseNoisyDataset(base_dataset, use_noise=False),
-                        batch_size=args.batch_size, shuffle=False, collate_fn=siamese_collate)
+    base_dataset = GraphPairDataset(graphs)
+    loader = DataLoader(CoordinateNoiseDataset(base_dataset, use_noise=False),
+                        batch_size=args.batch_size, shuffle=False, collate_fn=collate_pairs)
     node_dim = base_dataset[0][0].x.shape[1]
     assert node_dim == len(FEATURE_NAMES) == 23, (node_dim, len(FEATURE_NAMES))
     print(f"Dataset: {args.dataset} ({len(base_dataset)} mutations, {node_dim} features)")
